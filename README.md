@@ -1,3 +1,3 @@
 # frc-data-analysis-template
 
-Template to use for FRC Team 4201 Data Analysis Systems
+Template to use for FRC team data analysis systems
