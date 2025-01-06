@@ -5,15 +5,17 @@ import traceback
 import pandas as pd
 import numpy as np
 
-print(seperation_bar)
-print("Script 04: Data Analysis & Statistics Aggregation\n")
+# ===========================
+# CONFIGURATION SECTION
+# ===========================
 
-# File paths
-team_based_match_data_path = "data/processed/team_based_match_data.json"
-team_performance_data_path = "outputs/team_data/team_performance_data.json"
+# File paths (Modify these as needed)
+TEAM_BASED_MATCH_DATA_PATH = "data/processed/team_based_match_data.json"  # Input: Team-based match data
+TEAM_PERFORMANCE_DATA_PATH = "outputs/team_data/team_performance_data.json"  # Output: Team performance data
 
-# Helper Functions
-
+# ===========================
+# HELPER FUNCTIONS SECTION
+# ===========================
 
 def convert_to_serializable(obj):
     """
@@ -35,14 +37,14 @@ def convert_to_serializable(obj):
     return obj
 
 
-def calculate_team_peformance_data(team_data):
+def calculate_team_performance_data(team_data):
     """
     Automatically calculates team performance data for each team based on detected data types.
 
     :param team_data: Dictionary containing match data for each team.
     :return: A dictionary with aggregated team statistics.
     """
-    all_team_peformance_data = {}
+    all_team_performance_data = {}
 
     for team, data in team_data.items():
         matches = data["matches"]
@@ -67,35 +69,45 @@ def calculate_team_peformance_data(team_data):
                 team_performance[f"{column}_percent_true"] = float(df[column].mean() * 100)
 
         # Add processed statistics for the team
-        all_team_peformance_data[team] = team_performance
+        all_team_performance_data[team] = team_performance
 
-    return all_team_peformance_data
+    return all_team_performance_data
 
+# ===========================
+# MAIN SCRIPT SECTION
+# ===========================
 
-# Main Script Execution
+print(seperation_bar)
+print("Script 04: Data Analysis & Statistics Aggregation\n")
+
 try:
-    print(f"[INFO] Loading team-based match data from: {team_based_match_data_path}")
-    with open(team_based_match_data_path, 'r') as infile:
+    # Guidance for other FRC teams:
+    # - Ensure your team-based match data is in `data/processed/team_based_match_data.json`.
+    # - Modify the file paths above if your structure is different.
+
+    print(f"[INFO] Loading team-based match data from: {TEAM_BASED_MATCH_DATA_PATH}")
+    with open(TEAM_BASED_MATCH_DATA_PATH, 'r') as infile:
         team_data = json.load(infile)
 
     if not isinstance(team_data, dict):
-        raise ValueError("Team-based match data must be a dictionary.")
+        raise ValueError("[ERROR] Team-based match data must be a dictionary.")
 
-    print("[INFO] Calculating team peformance data.")
-    team_performance_data = calculate_team_peformance_data(team_data)
+    print("[INFO] Calculating team performance data.")
+    team_performance_data = calculate_team_performance_data(team_data)
 
     # Convert data to serializable format
     team_performance_data_serializable = convert_to_serializable(team_performance_data)
 
-    print(f"[INFO] Saving team performance data to: {team_performance_data_path}")
-    os.makedirs(os.path.dirname(team_performance_data_path), exist_ok=True)
-    with open(team_performance_data_path, 'w') as outfile:
+    # Save team performance data
+    print(f"[INFO] Saving team performance data to: {TEAM_PERFORMANCE_DATA_PATH}")
+    os.makedirs(os.path.dirname(TEAM_PERFORMANCE_DATA_PATH), exist_ok=True)
+    with open(TEAM_PERFORMANCE_DATA_PATH, 'w') as outfile:
         json.dump(team_performance_data_serializable, outfile, indent=4)
 
-    print("\nScript 04: Completed.")
+    print("\n[INFO] Script 04: Completed.")
 
 except Exception as e:
-    print(f"[ERROR] An unexpected error occurred: {e}")
+    print(f"\n[ERROR] An unexpected error occurred: {e}")
     print(traceback.format_exc())
     print("\nScript 04: Failed.")
 
