@@ -3,77 +3,114 @@ import pandas as pd
 import os
 import traceback
 import matplotlib.pyplot as plt
+from scipy.stats import zscore
+
+# ===========================
+# CONFIGURATION SECTION
+# ===========================
+
+# File paths (Modify these as needed)
+TEAM_PERFORMANCE_DATA_PATH = "outputs/team_data/team_performance_data.json"  # Input: Team performance data
+ADVANCED_TEAM_PERFORMANCE_DATA_PATH = "outputs/team_data/advanced_team_performance_data.json"  # Output: Advanced team performance data
+TEAM_COMPARISON_ANALYSIS_STATS_PATH = "outputs/statistics/team_comparison_analysis_stats.txt"  # Output: Team comparison stats
+VISUALIZATIONS_DIR = "outputs/visualizations"  # Output: Visualizations folder
+
+# Custom Metrics Configuration
+CUSTOM_METRICS = {
+    "consistency": {
+        "description": (
+            "Calculates how consistent a team is across all quantitative metrics. "
+            "This uses the average of the z-scores of standard deviations across all metrics. "
+            "Lower values indicate better consistency."
+        ),
+        "calculation": lambda df: df[
+            [col for col in df.columns if col.endswith("_std_dev")]
+        ].apply(zscore).mean(axis=1),
+        "ascending": True  # Lower values are better for consistency
+    }
+    # Add more custom metrics here..
+}
+
+# ===========================
+# MAIN SCRIPT SECTION
+# ===========================
 
 print(seperation_bar)
 print("Script 05: Team Comparison Analysis\n")
 
-# File paths
-team_performance_data_path = "outputs/team_data/team_performance_data.json"
-advanced_team_performance_data_path = "outputs/team_data/advanced_team_performance_data.json"
-team_comparison_analysis_stats_path = "outputs/statistics/team_comparison_analysis_stats.txt"
-visualizations_dir = "outputs/visualizations"
-
 try:
-    # Check if team performance data file exists
-    if not os.path.exists(team_performance_data_path):
-        raise FileNotFoundError(f"Team performance data file not found: {team_performance_data_path}")
+    # Step 1: Verify input file exists
+    if not os.path.exists(TEAM_PERFORMANCE_DATA_PATH):
+        raise FileNotFoundError(f"Team performance data file not found: {TEAM_PERFORMANCE_DATA_PATH}")
 
-    # Load the team statistics data
-    print(f"[INFO] Loading team performance data from: {team_performance_data_path}")
-    with open(team_performance_data_path, "r") as infile:
+    # Step 2: Load team performance data
+    print(f"[INFO] Loading team performance data from: {TEAM_PERFORMANCE_DATA_PATH}")
+    with open(TEAM_PERFORMANCE_DATA_PATH, "r") as infile:
         team_performance_data = pd.read_json(infile, orient="index")
 
     # Ensure the DataFrame is not empty
     if team_performance_data.empty:
-        raise ValueError(f"Team performance data is empty. Check the file: {team_performance_data_path}")
+        raise ValueError(f"Team performance data is empty. Check the file: {TEAM_PERFORMANCE_DATA_PATH}")
 
-    # Add calculated metrics
-    print("[INFO] Calculating additional metrics.")
+    # Step 3: Calculate custom metrics
+    print("[INFO] Calculating custom metrics.")
+    for metric_name, metric_details in CUSTOM_METRICS.items():
+        print(f"[INFO] Adding custom metric: {metric_name} - {metric_details['description']}")
+        try:
+            # NOTE: Ensure your custom calculation:
+            # - Takes the `team_performance_data` DataFrame as input.
+            # - Outputs a Pandas Series with team indices and calculated metric values.
+            team_performance_data[metric_name] = metric_details["calculation"](team_performance_data)
+        except Exception as e:
+            print(f"[ERROR] Failed to calculate metric '{metric_name}'. Reason: {e}")
 
-    # INSERT ADDITIONAL METRICS CALCULATIONS HERE
+    # Step 4: Save advanced team performance data
+    print(f"[INFO] Saving advanced analysis to: {ADVANCED_TEAM_PERFORMANCE_DATA_PATH}")
+    os.makedirs(os.path.dirname(ADVANCED_TEAM_PERFORMANCE_DATA_PATH), exist_ok=True)
+    team_performance_data.to_json(ADVANCED_TEAM_PERFORMANCE_DATA_PATH, orient="index", indent=4)
 
-    # Save advanced analysis as JSON
-    print(f"[INFO] Saving advanced analysis to: {advanced_team_performance_data_path}")
-    os.makedirs(os.path.dirname(advanced_team_performance_data_path), exist_ok=True)
-    team_performance_data.to_json(advanced_team_performance_data_path, orient="index", indent=4)
-
-    # Rank teams for each metric
+    # Step 5: Rank teams for each metric
     print("[INFO] Ranking teams for metrics.")
-    rankable_metrics = [None, None, None] # INSERT METRICS TO RANK HERE
     rankings = {}
-    for metric in rankable_metrics:
-        ascending = metric in [None, None] # INSERT ACCENDING METRICS HERE
-        team_performance_data[f"{metric}_rank"] = team_performance_data[metric].rank(ascending=ascending)
-        rankings[metric] = team_performance_data.sort_values(by=metric, ascending=ascending)
+    for metric_name, metric_details in CUSTOM_METRICS.items():
+        ascending = metric_details.get("ascending", False)
+        team_performance_data[f"{metric_name}_rank"] = team_performance_data[metric_name].rank(ascending=ascending)
+        rankings[metric_name] = team_performance_data.sort_values(by=metric_name, ascending=ascending)
 
-    # Save rankings to the text file
-    print(f"[INFO] Saving rankings to: {team_comparison_analysis_stats_path}")
-    os.makedirs(os.path.dirname(team_comparison_analysis_stats_path), exist_ok=True)
-    with open(team_comparison_analysis_stats_path, 'w') as stats_file:
+    # Step 6: Save rankings to text file
+    print(f"[INFO] Saving rankings to: {TEAM_COMPARISON_ANALYSIS_STATS_PATH}")
+    os.makedirs(os.path.dirname(TEAM_COMPARISON_ANALYSIS_STATS_PATH), exist_ok=True)
+    with open(TEAM_COMPARISON_ANALYSIS_STATS_PATH, 'w') as stats_file:
         stats_file.write("Team Rankings by Custom Metrics\n")
         stats_file.write("=" * 80 + "\n\n")
-
-        for metric, ranked_df in rankings.items():
-            stats_file.write(f"Rankings by {metric}:\n")
+        for metric_name, ranked_df in rankings.items():
+            stats_file.write(f"Rankings by {metric_name}:\n")
             stats_file.write(
-                ranked_df[[metric, f"{metric}_rank"]].to_string(index=True) + "\n\n"
+                ranked_df[[metric_name, f"{metric_name}_rank"]].to_string(index=True) + "\n\n"
             )
 
-    # Generate visualizations
-    print(f"[INFO] Generating visualizations in: {visualizations_dir}")
-    os.makedirs(visualizations_dir, exist_ok=True)
-    for metric, ranked_df in rankings.items():
+    # Step 7: Generate visualizations
+    print(f"[INFO] Generating visualizations in: {VISUALIZATIONS_DIR}")
+    os.makedirs(VISUALIZATIONS_DIR, exist_ok=True)
+    for metric_name, ranked_df in rankings.items():
         top_n = 10  # Top 10 teams for visualization
         ranked_df.head(top_n).plot(
-            y=metric, kind="bar", title=f"Top {top_n} Teams by {metric.replace('_', ' ').title()}", legend=False
+            y=metric_name,
+            kind="bar",
+            title=f"Top {top_n} Teams by {metric_name.replace('_', ' ').title()}",
+            legend=False
         )
-        plt.ylabel(metric.replace("_", " ").title())
+        plt.ylabel(metric_name.replace("_", " ").title())
         plt.xticks(ticks=range(top_n), labels=ranked_df.head(top_n).index, rotation=45, ha="right")
         plt.tight_layout()
-        plt.savefig(os.path.join(visualizations_dir, f"top_{top_n}_{metric}.png"))
+        plt.savefig(os.path.join(VISUALIZATIONS_DIR, f"top_{top_n}_{metric_name}.png"))
         plt.close()
 
-    print("\nScript 05: Completed.")
+    print("\n[INFO] Script 05: Completed successfully.")
+
+# ===========================
+# ERROR HANDLING SECTION
+# ===========================
 
 except FileNotFoundError as fnf_error:
     print(f"[ERROR] File not found: {fnf_error}")
@@ -84,7 +121,6 @@ except PermissionError as perm_error:
 except Exception as e:
     print(f"[ERROR] An unexpected error occurred: {e}")
     print(traceback.format_exc())
-if e:
     print("\nScript 05: Failed.")
 
 print(seperation_bar)
