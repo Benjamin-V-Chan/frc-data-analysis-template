@@ -81,7 +81,7 @@ print(seperation_bar)
 print("Script 04: Data Analysis & Statistics Aggregation\n")
 
 try:
-    # Guidance for other FRC teams:
+    # Guidance for FRC teams:
     # - Ensure your team-based match data is in `data/processed/team_based_match_data.json`.
     # - Modify the file paths above if your structure is different.
 

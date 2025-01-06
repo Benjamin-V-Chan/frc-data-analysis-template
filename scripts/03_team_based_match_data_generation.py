@@ -68,7 +68,7 @@ print(seperation_bar)
 print("Script 03: Team-based Match Data Restructuring\n")
 
 try:
-    # Guidance for other FRC teams:
+    # Guidance for FRC teams:
     # - Ensure the cleaned match data file is located at `data/processed/cleaned_match_data.json`.
     # - Customize advanced statistics calculations in the helper function above if needed.
 

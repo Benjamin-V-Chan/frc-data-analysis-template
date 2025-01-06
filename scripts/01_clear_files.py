@@ -100,7 +100,7 @@ print(seperation_bar)
 print("Script 01: Clear Files\n")
 
 try:
-    # Guidance for other FRC teams:
+    # Guidance for FRC teams:
     # - `OUTPUTS_DIR` stores analysis results. Modify untouched/preserved folders above to suit your needs.
     # - `DATA_DIR` stores your team's scouting data. Ensure raw data is in `data/raw`.
 
