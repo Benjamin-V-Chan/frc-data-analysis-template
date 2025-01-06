@@ -76,14 +76,17 @@ def clear_folder_with_exceptions(folder_path, untouched_folders=None, preserved_
 
 
 # MAIN SCRIPT
-
 print(seperation_bar)
 print("Script 01: Clear Files\n")
 
 try:
     # Root folders
-    outputs_dir = "outputs"
-    data_dir = "data"
+    outputs_dir = "outputs"  # Folder containing results, visualizations, and statistics
+    data_dir = "data"       # Folder containing raw and processed data
+
+    # Guidance for other FRC teams:
+    # - `outputs_dir` stores analysis results. Modify untouched/preserved folders below to suit your needs.
+    # - `data_dir` stores your team's scouting data. Ensure raw data is in `data/raw`.
 
     # Ensure root folders exist
     ensure_folder_exists(outputs_dir)
@@ -92,21 +95,21 @@ try:
     # Clear outputs folder
     clear_folder_with_exceptions(
         outputs_dir,
-        untouched_folders=[],
-        preserved_folders=["visualizations", "statistics", "team_data"]
+        untouched_folders=[],  # Folders you want to leave completely untouched
+        preserved_folders=["visualizations", "statistics", "team_data"]  # Folders you want to keep but clear contents
     )
 
     # Clear data folder
     clear_folder_with_exceptions(
         data_dir,
-        untouched_folders=["raw"],
-        preserved_folders=["processed"]
+        untouched_folders=["raw"],  # Keep raw data untouched
+        preserved_folders=["processed"]  # Clear processed data folder, but keep the structure
     )
 
-    print("Script 01: Completed.")
+    print("\n[INFO] Script 01: Completed. Your files and folders are now ready for a fresh analysis.")
 
 except Exception as e:
-    print(f"An error occurred: {e}")
-    print("\nScript 01: Failed.")
+    print(f"\n[ERROR] An error occurred: {e}")
+    print("\nScript 01: Failed. Please check the error and try again.")
 
 print(seperation_bar)
