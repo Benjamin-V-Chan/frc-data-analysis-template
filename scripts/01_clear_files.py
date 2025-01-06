@@ -2,7 +2,25 @@ from utility_functions.print_formats import seperation_bar
 import os
 import shutil
 
-# Function to ensure a folder exists
+# ===========================
+# CONFIGURATION SECTION
+# ===========================
+
+# Root directories (Modify these as needed)
+OUTPUTS_DIR = "outputs"  # Directory for results, visualizations, and statistics
+DATA_DIR = "data"        # Directory for raw and processed scouting data
+
+# Folder handling options (Modify based on your team's needs)
+# Specify folders to leave untouched or to preserve their structure while clearing contents.
+OUTPUTS_UNTOUCHED_FOLDERS = []  # Leave these folders untouched
+OUTPUTS_PRESERVED_FOLDERS = ["visualizations", "statistics", "team_data"]  # Clear contents but preserve these folders
+DATA_UNTOUCHED_FOLDERS = ["raw"]  # Keep raw data untouched
+DATA_PRESERVED_FOLDERS = ["processed"]  # Clear contents but preserve processed data folder structure
+
+# ===========================
+# HELPER FUNCTIONS SECTION
+# ===========================
+
 def ensure_folder_exists(folder_path):
     """
     Ensures that a folder exists. If it doesn't, it is created.
@@ -11,12 +29,11 @@ def ensure_folder_exists(folder_path):
     """
     if not os.path.exists(folder_path):
         os.makedirs(folder_path, exist_ok=True)
-        print(f"Created missing folder: {folder_path}")
+        print(f"[INFO] Created missing folder: {folder_path}")
     else:
-        print(f"Folder exists: {folder_path}")
+        print(f"[INFO] Folder exists: {folder_path}")
 
 
-# Function to clear a folder while keeping specific subfolders untouched or preserved
 def clear_folder_with_exceptions(folder_path, untouched_folders=None, preserved_folders=None):
     """
     Clears all contents of a folder while keeping specific subfolders untouched or preserved.
@@ -44,72 +61,71 @@ def clear_folder_with_exceptions(folder_path, untouched_folders=None, preserved_
 
         if item in untouched_folders:
             # Skip untouched folders entirely
-            print(f"Untouched: {item_path}")
+            print(f"[INFO] Untouched folder: {item_path}")
             continue
 
         if item in preserved_folders:
             # Clear contents of preserved folders
-            print(f"Preserving folder: {item_path}")
+            print(f"[INFO] Clearing preserved folder: {item_path}")
             for sub_item in os.listdir(item_path):
                 sub_item_path = os.path.join(item_path, sub_item)
                 try:
                     if os.path.isfile(sub_item_path) or os.path.islink(sub_item_path):
                         os.unlink(sub_item_path)
-                        print(f"Deleted file: {sub_item_path}")
+                        print(f"[INFO] Deleted file: {sub_item_path}")
                     elif os.path.isdir(sub_item_path):
                         shutil.rmtree(sub_item_path)
-                        print(f"Deleted folder: {sub_item_path}")
+                        print(f"[INFO] Deleted folder: {sub_item_path}")
                 except Exception as e:
-                    print(f"Failed to clear {sub_item_path}. Reason: {e}")
+                    print(f"[ERROR] Failed to clear {sub_item_path}. Reason: {e}")
             continue
 
         # Delete everything else
         try:
             if os.path.isfile(item_path) or os.path.islink(item_path):
                 os.unlink(item_path)
-                print(f"Deleted file: {item_path}")
+                print(f"[INFO] Deleted file: {item_path}")
             elif os.path.isdir(item_path):
                 shutil.rmtree(item_path)
-                print(f"Deleted folder: {item_path}")
+                print(f"[INFO] Deleted folder: {item_path}")
         except Exception as e:
-            print(f"Failed to delete {item_path}. Reason: {e}")
+            print(f"[ERROR] Failed to delete {item_path}. Reason: {e}")
 
 
-# MAIN SCRIPT
+# ===========================
+# MAIN SCRIPT SECTION
+# ===========================
+
 print(seperation_bar)
 print("Script 01: Clear Files\n")
 
 try:
-    # Root folders
-    outputs_dir = "outputs"  # Folder containing results, visualizations, and statistics
-    data_dir = "data"       # Folder containing raw and processed data
-
     # Guidance for other FRC teams:
-    # - `outputs_dir` stores analysis results. Modify untouched/preserved folders below to suit your needs.
-    # - `data_dir` stores your team's scouting data. Ensure raw data is in `data/raw`.
+    # - `OUTPUTS_DIR` stores analysis results. Modify untouched/preserved folders above to suit your needs.
+    # - `DATA_DIR` stores your team's scouting data. Ensure raw data is in `data/raw`.
 
     # Ensure root folders exist
-    ensure_folder_exists(outputs_dir)
-    ensure_folder_exists(data_dir)
+    ensure_folder_exists(OUTPUTS_DIR)
+    ensure_folder_exists(DATA_DIR)
 
     # Clear outputs folder
     clear_folder_with_exceptions(
-        outputs_dir,
-        untouched_folders=[],  # Folders you want to leave completely untouched
-        preserved_folders=["visualizations", "statistics", "team_data"]  # Folders you want to keep but clear contents
+        OUTPUTS_DIR,
+        untouched_folders=OUTPUTS_UNTOUCHED_FOLDERS,
+        preserved_folders=OUTPUTS_PRESERVED_FOLDERS
     )
 
     # Clear data folder
     clear_folder_with_exceptions(
-        data_dir,
-        untouched_folders=["raw"],  # Keep raw data untouched
-        preserved_folders=["processed"]  # Clear processed data folder, but keep the structure
+        DATA_DIR,
+        untouched_folders=DATA_UNTOUCHED_FOLDERS,
+        preserved_folders=DATA_PRESERVED_FOLDERS
     )
 
-    print("\n[INFO] Script 01: Completed. Your files and folders are now ready for a fresh analysis.")
+    print("\n[INFO] Script 01: Completed.")
 
 except Exception as e:
     print(f"\n[ERROR] An error occurred: {e}")
-    print("\nScript 01: Failed. Please check the error and try again.")
+    print("\nScript 01: Failed.")
 
 print(seperation_bar)
