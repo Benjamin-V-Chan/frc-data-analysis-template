@@ -1,14 +1,27 @@
 from utility_functions.print_formats import seperation_bar
 import os
 import json
+import traceback
 import pandas as pd
 import numpy as np
 
+print(seperation_bar)
+print("Script 05: Data Analysis & Statistics Aggregation\n")
+
+# File paths
 team_based_match_data_path = "data/processed/team_based_match_data.json"
 team_performance_data_path = "outputs/team_data/team_performance_data.json"
 
+# Helper Functions
+
 
 def convert_to_serializable(obj):
+    """
+    Converts all non-serializable types (like NumPy types) to Python native types.
+
+    :param obj: Object to convert.
+    :return: Serializable object.
+    """
     if isinstance(obj, (pd.Series, pd.DataFrame)):
         return obj.to_dict()
     if isinstance(obj, (np.int64, np.float64)):
@@ -23,16 +36,25 @@ def convert_to_serializable(obj):
 
 
 def calculate_team_peformance_data(team_data):
+    """
+    Automatically calculates team performance data for each team based on detected data types.
+
+    :param team_data: Dictionary containing match data for each team.
+    :return: A dictionary with aggregated team statistics.
+    """
     all_team_peformance_data = {}
 
     for team, data in team_data.items():
         matches = data["matches"]
         df = pd.DataFrame(matches)
 
+        # Initialize team_performance dictionary for this team
         team_performance = {}
 
+        # Number of matches played
         team_performance["number_of_matches"] = len(df)
 
+        # Process data based on detected types
         for column in df.columns:
             if pd.api.types.is_numeric_dtype(df[column]):
                 team_performance[f"{column}_average"] = float(df[column].mean())
@@ -44,6 +66,7 @@ def calculate_team_peformance_data(team_data):
             elif pd.api.types.is_bool_dtype(df[column]):
                 team_performance[f"{column}_percent_true"] = float(df[column].mean() * 100)
 
+        # Add processed statistics for the team
         all_team_peformance_data[team] = team_performance
 
     return all_team_peformance_data
@@ -51,21 +74,29 @@ def calculate_team_peformance_data(team_data):
 
 # Main Script Execution
 try:
+    print(f"[INFO] Loading team-based match data from: {team_based_match_data_path}")
     with open(team_based_match_data_path, 'r') as infile:
         team_data = json.load(infile)
 
     if not isinstance(team_data, dict):
-        pass
+        raise ValueError("Team-based match data must be a dictionary.")
 
+    print("[INFO] Calculating team peformance data.")
     team_performance_data = calculate_team_peformance_data(team_data)
 
     # Convert data to serializable format
     team_performance_data_serializable = convert_to_serializable(team_performance_data)
 
+    print(f"[INFO] Saving team performance data to: {team_performance_data_path}")
     os.makedirs(os.path.dirname(team_performance_data_path), exist_ok=True)
     with open(team_performance_data_path, 'w') as outfile:
         json.dump(team_performance_data_serializable, outfile, indent=4)
 
+    print("\nScript 05: Completed.")
 
 except Exception as e:
-    pass
+    print(f"[ERROR] An unexpected error occurred: {e}")
+    print(traceback.format_exc())
+    print("\nScript 05: Failed.")
+
+print(seperation_bar)
