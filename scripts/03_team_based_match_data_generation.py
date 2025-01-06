@@ -3,15 +3,17 @@ import os
 import json
 import traceback
 
-print(seperation_bar)
-print("Script 03: Team-based Match Data Restructuring\n")
+# ===========================
+# CONFIGURATION SECTION
+# ===========================
 
-# File paths
-cleaned_match_data_path = "data/processed/cleaned_match_data.json"
-team_based_match_data_path = "data/processed/team_based_match_data.json"
+# File paths (Modify these as needed)
+CLEANED_MATCH_DATA_PATH = "data/processed/cleaned_match_data.json"  # Input: Cleaned match-level data
+TEAM_BASED_MATCH_DATA_PATH = "data/processed/team_based_match_data.json"  # Output: Team-based data
 
-# Functions to restructure and calculate statistics
-
+# ===========================
+# HELPER FUNCTIONS SECTION
+# ===========================
 
 def restructure_to_team_based(cleaned_file_path, team_file_path):
     """
@@ -27,7 +29,7 @@ def restructure_to_team_based(cleaned_file_path, team_file_path):
             cleaned_data = json.load(infile)
 
         if not isinstance(cleaned_data, list):
-            raise ValueError("Cleaned data must be a list of matches.")
+            raise ValueError("[ERROR] Cleaned data must be a list of matches.")
 
         # Group matches by team
         team_data = {}
@@ -37,10 +39,12 @@ def restructure_to_team_based(cleaned_file_path, team_file_path):
                 team_data[team] = {"matches": []}
             team_data[team]["matches"].append(match)
 
-        # Add advanced statistics
+        # Placeholder for advanced statistics calculations
+        # Teams can implement custom metrics by replacing this section
         for team, data in team_data.items():
             for match in data["matches"]:
-                # INSERT ADVANCED STATISTICS CALCULATIONS HERE
+                # Example: Add any advanced calculations here
+                # match["example_stat"] = some_calculation(match)
                 pass
 
         # Save team-based data
@@ -56,14 +60,28 @@ def restructure_to_team_based(cleaned_file_path, team_file_path):
         print(f"[ERROR] An unexpected error occurred during restructuring: {e}")
         print(traceback.format_exc())
 
-# Main script execution
+# ===========================
+# MAIN SCRIPT SECTION
+# ===========================
+
+print(seperation_bar)
+print("Script 03: Team-based Match Data Restructuring\n")
+
 try:
-    os.makedirs(os.path.dirname(team_based_match_data_path), exist_ok=True)
-    restructure_to_team_based(cleaned_match_data_path, team_based_match_data_path)
-    print(f"[INFO] Saving team-based match data: {team_based_match_data_path}")
-    print("\nScript 03: Completed.")
+    # Guidance for other FRC teams:
+    # - Ensure the cleaned match data file is located at `data/processed/cleaned_match_data.json`.
+    # - Customize advanced statistics calculations in the helper function above if needed.
+
+    # Ensure the output directory exists
+    os.makedirs(os.path.dirname(TEAM_BASED_MATCH_DATA_PATH), exist_ok=True)
+
+    # Restructure data to team-based format
+    restructure_to_team_based(CLEANED_MATCH_DATA_PATH, TEAM_BASED_MATCH_DATA_PATH)
+
+    print("\n[INFO] Script 03: Completed.")
+
 except Exception as e:
-    print(f"[ERROR] An unexpected error occurred: {e}")
+    print(f"\n[ERROR] An unexpected error occurred: {e}")
     print(traceback.format_exc())
     print("\nScript 03: Failed.")
 
