@@ -25,7 +25,7 @@ try:
 
     # Ensure the DataFrame is not empty
     if team_performance_data.empty:
-        raise ValueError(f"Team statistics data is empty. Check the file: {team_performance_data_path}")
+        raise ValueError(f"Team performance data is empty. Check the file: {team_performance_data_path}")
 
     # Add calculated metrics
     print("[INFO] Calculating additional metrics.")
