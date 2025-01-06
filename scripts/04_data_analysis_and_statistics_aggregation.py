@@ -6,7 +6,7 @@ import pandas as pd
 import numpy as np
 
 print(seperation_bar)
-print("Script 05: Data Analysis & Statistics Aggregation\n")
+print("Script 04: Data Analysis & Statistics Aggregation\n")
 
 # File paths
 team_based_match_data_path = "data/processed/team_based_match_data.json"
@@ -92,11 +92,11 @@ try:
     with open(team_performance_data_path, 'w') as outfile:
         json.dump(team_performance_data_serializable, outfile, indent=4)
 
-    print("\nScript 05: Completed.")
+    print("\nScript 04: Completed.")
 
 except Exception as e:
     print(f"[ERROR] An unexpected error occurred: {e}")
     print(traceback.format_exc())
-    print("\nScript 05: Failed.")
+    print("\nScript 04: Failed.")
 
 print(seperation_bar)
