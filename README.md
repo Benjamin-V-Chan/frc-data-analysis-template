@@ -1,3 +1,5 @@
+# frc-data-science-template
+
 ## **Features**
 1. **Data Cleaning**:
    - Ensures consistency in raw JSON data.
